@@ -1,6 +1,6 @@
 # PingMe - Chat App
 
-PingMe is a real-time chat application that allows users to connect, send messages, photos, videos, and even voice recordings. The goal of PingMe is to provide a simple and responsive messaging platform, while continuously evolving with new features such as voice and video calling.
+PingMe is a real-time chat application that allows users to connect, send messages, photos, videos, and even voice recordings. 
 
 ## Tech Stack
 
