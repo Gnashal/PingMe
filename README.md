@@ -10,8 +10,7 @@ The app is built using the following technologies:
 - **ElysiaJS**: A lightweight, fast web framework for building the backend API and handling server-side operations.
 - **React**: A JavaScript library for building user interfaces, used here for creating dynamic, single-page applications.
 - **Vite**: A modern, fast development tool that improves the React development experience with hot module replacement and fast build times.
-- **Bun**: A fast JavaScript runtime that handles backend server management and package management, providing a performance boost to your app.
-
+- **Bun**: A fast JavaScript runtime that handles backend server management and package management.
 ## Features
 
 The core features planned for PingMe are:
