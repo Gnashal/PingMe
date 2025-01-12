@@ -8,7 +8,8 @@
   "dependencies": {
     "@elysiajs/swagger": "^1.2.0",
     "elysia": "latest",
-    "mongodb": "^6.12.0"
+    "mongodb": "^6.12.0",
+    "mongoose": "^8.9.4"
   },
   "devDependencies": {
     "bun-types": "latest"

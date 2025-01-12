@@ -1,27 +1,44 @@
 import swagger from "@elysiajs/swagger";
-import { Elysia } from "elysia";
-import { MongoClient } from "mongodb";
+import { Elysia , t } from "elysia";
+import mongoose from "mongoose";
+import User from '../models/User';
 
 const url: any = process.env.MONGO_URL;
-const db_client = new MongoClient(url);
 console.log(url);
 
 async function connectDb() {
   try {
-    await db_client.connect()
+    await mongoose.connect(url)
     console.log("Success");
+
   } catch (err) {
     console.log("Not success")
     if (err) throw err;
   }
 }
-
 connectDb();
+
+async function registerUser(data: { username: string; password: string }) {
+  try {
+    const { username, password } = data;
+    const newUser = await User.create({ username, password });
+    return { success: true, message: "User created successfully", user: newUser };
+  } catch (err) {
+    console.error("Error creating user:", err);
+    return { success: false, message: "Failed to create user", error: err };
+  }
+}
 
 
 const app = new Elysia()
 .use(swagger())
 .get('/test', 'Hello from backend')
+.post('/register', ({ body }) => registerUser(body), {
+  body : t.Object({
+    username: t.String(),
+    password: t.String(),
+  })
+})
 .listen(4000)
 
 console.log(
