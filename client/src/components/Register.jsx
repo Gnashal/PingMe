@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import './styles/register.css';
 import logo from '../assets/logo.jpg'
 import { useState } from "react";
@@ -8,16 +8,25 @@ export default function Register() {
     const [password, setPassword] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitted, setSubmitStatus] = useState(false);
+
+    const navigate = useNavigate();
    
     const handleSubmit = (e) => {
         e.preventDefault();
         if (password !== confirmPass) {
             setError("Password does not match! Try again")
+            return;
         }else if (!password || !username || !confirmPass) {
             setError("Missing Fields!")
-        } else {
-            setError('');
-        }
+            return;
+        } 
+        setError('');
+        setSubmitStatus(true);
+    };
+
+    if (isSubmitted) {
+        navigate('/login')
     }
     return (
         <>
