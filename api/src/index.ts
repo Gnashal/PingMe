@@ -2,9 +2,11 @@ import swagger from "@elysiajs/swagger";
 import { Elysia , t } from "elysia";
 import mongoose from "mongoose";
 import User from '../models/User';
+import cors from '@elysiajs/cors'
 
 const url: any = process.env.MONGO_URL;
 console.log(url);
+console.log(process.env.CLIENT_URL);
 
 async function connectDb() {
   try {
@@ -29,9 +31,14 @@ async function registerUser(data: { username: string; password: string }) {
   }
 }
 
-
 const app = new Elysia()
 .use(swagger())
+.use(cors({
+  credentials: true,
+  origin: process.env.CLIENT_URL || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}))
 .get('/test', 'Hello from backend')
 .post('/register', ({ body }) => registerUser(body), {
   body : t.Object({
@@ -39,6 +46,7 @@ const app = new Elysia()
     password: t.String(),
   })
 })
+
 .listen(4000)
 
 console.log(
