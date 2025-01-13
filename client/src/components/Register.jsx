@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import './styles/register.css';
 import logo from '../assets/logo.jpg'
 import { useState } from "react";
+import axios from "axios";
 
 export default function Register() {
     const [username, setUsername] = useState('');
@@ -12,7 +13,7 @@ export default function Register() {
 
     const navigate = useNavigate();
    
-    const handleSubmit = (e) => {
+    async function handleSubmit(e){
         e.preventDefault();
         if (password !== confirmPass) {
             setError("Password does not match! Try again")
@@ -22,7 +23,19 @@ export default function Register() {
             return;
         } 
         setError('');
-        setSubmitStatus(true);
+        try {
+            const api_res = await axios.post('/register', { username, password });
+    
+            if (api_res.status === 200) {
+                setSubmitStatus(true);
+            } else {
+                setError('Unexpected response from the server.');
+                console.error(api_res);
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Error contacting the database. Please try again later.');
+        }
     };
 
     if (isSubmitted) {
