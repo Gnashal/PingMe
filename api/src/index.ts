@@ -95,12 +95,12 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     value: token,
     httpOnly: true
   })
-  console.log(`Logged in user with token: ${token}`)
+  console.log(`Logged in user:: ${user} with toke: ${token}`)
 
   return {
     success: true,
     message: "Login successful.",
-    data: { token }, 
+    data: { token, user }, 
     status: 200,  
   };
 }, {
