@@ -12,10 +12,10 @@ export default function Login() {
 
     const navigate = useNavigate();
 
-    async function handleLogin(user, pass) {
+    async function handleLogin(username, password) {
         try {
-            const api_res = await axios.post('/login', {user, pass})
-        if (api_res.status === 200) {
+            const api_res = await axios.post('/login', {username, password})
+        if (api_res.status === 200 && api_res.data.success) {
             setSubmitStatus(true);
         } else {
             setError('Unexpected response from the server.');
@@ -36,13 +36,12 @@ export default function Login() {
         }
         try {
            const response = await axios.post('/verify-user', {username, password})
-           if (response.status === 200) {
-            handleLogin(username, password)
-            setError('');
-            return;
+           if (response.status === 200 && response.data.success) {
+            await handleLogin(username, password)
            } else {
             setError('Your account does not exist!');
             console.error(response);
+            return;
          }
 
         } catch (err) {
