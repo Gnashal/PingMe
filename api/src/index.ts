@@ -12,7 +12,7 @@ console.log(process.env.CLIENT_URL);
 
 async function connectDb() {
   try {
-    await mongoose.connect(url)
+    const response = await mongoose.connect(url)
     console.log("Success");
 
   } catch (err) {
@@ -95,7 +95,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     value: token,
     httpOnly: true
   })
-  console.log(token)
+  console.log(`Logged in user with token: ${token}`)
 
   return {
     success: true,
@@ -107,6 +107,24 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   body: t.Object({
     username: t.String(),
     password: t.String(),
+  })
+})
+.post('/verify-user', async ({body}) => {
+  const {success, user, message} = await verifyUser(body)
+  if (!success || !user) {
+    return {success: false, message}
+  }
+  return {
+    success: true,
+    message: "Verification Succesful",
+    data: { user }, 
+    status: 200,  
+  };
+}, 
+{
+  body: t.Object({
+    username: t.String(),
+    password: t.String()
   })
 })
 .listen({
