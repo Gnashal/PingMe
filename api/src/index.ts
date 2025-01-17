@@ -11,7 +11,7 @@ console.log(process.env.CLIENT_URL);
 
 async function connectDb() {
   try {
-    const response = await mongoose.connect(url)
+    await mongoose.connect(url)
     console.log("Success");
 
   } catch (err) {
@@ -35,6 +35,19 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
+.ws('/messages', {
+  open: (ws) => {
+    console.log("WebSocket connection established.");
+    ws.send("Welcome to the WebSocket server!");
+  },
+  message: (ws, msg) => {
+    console.log(`Received message: ${msg}`);
+    ws.send(`Echo: ${msg}`);
+  },
+  close: (ws, code) => {
+    console.log(`WebSocket connection closed with code: ${code}`);
+  }
+})
 .get('/test', 'Hello from backend')
 
 .post('/register', async ({ body, set }) => {
