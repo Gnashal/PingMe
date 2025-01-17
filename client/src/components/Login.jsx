@@ -25,7 +25,6 @@ export default function Login() {
             console.error(err);
             setError('Error contacting the database. Please try again later.');
         }
-        
     }
 
     async function handleSubmit(e) {
