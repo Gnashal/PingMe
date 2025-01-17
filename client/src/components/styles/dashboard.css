@@ -1,0 +1,93 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #2c2f33;
+    color: #ffffff;
+    overflow: hidden; 
+}
+
+.dash-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+.fList-wrapper {
+    width: 30%;
+    height: 100%;
+    background-color: #2f3136;
+    color: #b9bbbe;
+    display: flex    ;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    border-right: 1px solid #202225;
+}
+.chat-wrapper {
+    position: relative;
+    width: 70%;
+    height: 100%;
+    padding: 10px;
+    background-color: #36393f;;
+    display: block;
+    justify-content: flex-end;
+    overflow: auto;
+}
+.send-message-form {
+    position: absolute;
+    margin-bottom: 3%;
+    bottom: 0;
+    width: 97%;
+    height: 8vh;
+    display: flex;
+    padding: 5px;
+    color: white;
+    background-color: #40444b;
+    border-top: 1px solid #202225;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+}
+.send-message-form input {
+    flex-grow: 1;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-right: 10px;
+    font-size: 1rem;
+    background-color: #40444b;
+    border: none;
+    color: #dcddde;
+    outline: none;
+}
+
+.send-message-form input::placeholder {
+    color: #72767d;
+}
+
+.sendButton {
+    background: transparent;
+    display: flex;
+    width: auto;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .sendButton img {
+    justify-content: center;
+    width: 75%; 
+    height: 100%;  
+    fill: #ffffff;  
+    transition: transform 0.3s ease;
+  }
+  
+  .sendButton:hover img {
+    transform: scale(1.1);  
+  }
+
+  .resizer {
+    width: 1px;
+    cursor: col-resize;
+    height: 100%;
+}
+
+

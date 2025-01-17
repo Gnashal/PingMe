@@ -1,0 +1,32 @@
+.error-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f8d7da;
+    color: #721c24;
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-wrapper h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .error-wrapper p {
+    font-size: 1.25rem;
+    font-weight: normal;
+  }
+  
+  .error-wrapper p {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #856404;
+    font-weight: bold;
+  }
+  

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; 
+import '../styles/notoken.css'
+
 
 export function NoTokenError({ message }) {
   const [timer, setTimer] = useState(4); 
@@ -22,8 +24,10 @@ export function NoTokenError({ message }) {
 
   return (
     <>
+    <div className="error-wrapper">
       <h1>{message}</h1>
       <p>Redirecting to login in {timer} seconds...</p>
+    </div>
     </>
   );
 }
