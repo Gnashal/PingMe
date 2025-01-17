@@ -37,12 +37,14 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
 }))
 .get('/test', 'Hello from backend')
 
-.post('/register', async ({ body }) => {
+.post('/register', async ({ body, set }) => {
   const {success, user, error, message} = await registerUser(body)
   if (!success || !user) {
+    set.status = 401;
     return {success: false, Error: error, message}
   } 
-  console.log()
+  set.status = 201;
+  return {success: true, message, user};
 }, {
   body : t.Object({
     username: t.String(),
@@ -58,7 +60,10 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   const token = await jwt.sign({userId: user.password});
   auth.set({
     value: token,
-    httpOnly: true
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 86400,
   })
   console.log(`Logged in user:: ${user} with toke: ${token}`)
 
@@ -91,6 +96,24 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     username: t.String(),
     password: t.String()
   })
+})
+.get('/verify-token', async ({jwt, set, cookie: { auth }}) => {
+  if (!auth) {
+    set.status = 401;
+    return {success: false, message: "No Token"}
+  }
+  try {
+    const token_accepted = await jwt.verify(auth.value);
+    if (!token_accepted) {
+      set.status = 401;
+      return {success: false, message: "Unauthorized"}
+    }
+    set.status = 202;
+    return { success: true, message: "User Verified"}
+  } catch (err) {
+    set.status = 401;
+    return {success: false, message: "Unauthorized", Error: err}
+  }
 })
 .listen({
   port: 4000
