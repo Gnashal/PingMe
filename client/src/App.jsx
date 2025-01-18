@@ -1,18 +1,17 @@
-import {Routes, Route} from 'react-router-dom'
-import Register from './components/Register'
-import Login from './components/Login'
-import Dashboard from './components/Dashboard'
+import {BrowserRouter} from 'react-router-dom'
 import axios from 'axios'
+import { Router } from './Routes'
+import { UserContextProvider } from './UserContext';
 
 function App() {
 axios.defaults.baseURL = 'http://localhost:4000';
 axios.defaults.withCredentials = true;
   return (
-   <Routes>
-    <Route path='/' element={<Register />}/>
-    <Route path='/login' element={<Login />}/>
-    <Route path='/dashboard' element={<Dashboard />}/>
-   </Routes>
+    <BrowserRouter>
+      <UserContextProvider>
+        <Router/>
+      </UserContextProvider>
+    </BrowserRouter>
   )
 }
 

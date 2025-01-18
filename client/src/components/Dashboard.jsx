@@ -35,21 +35,11 @@ export default function Dashboard() {
         const ws = new WebSocket('ws://localhost:4000/messages')
         setWs(ws)
         ws.onopen = () => {
-            console.log('WebSocket connection established');
-            ws.send('Hello Server'); 
-          };     
-        
-          ws.onmessage = (event) => {
-            console.log('Message from server:', event.data);
-          };
-        
-          ws.onerror = (error) => {
-            console.log('WebSocket error:', error);
-          };
-        
-          ws.onclose = () => {
-            console.log('WebSocket connection closed');
-          };
+            ws.send("Hello Server")
+        },
+        ws.onmessage = (msg) => {
+            console.log(msg.data)
+        }
         return () => {
             ws.close();
         }

@@ -1,20 +1,25 @@
 import { data, Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
 import './styles/login.css'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import axios from 'axios'
+import { UserContext } from '../UserContext'
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isSubmitted, setSubmitStatus] = useState(false);
+    const {setId, setUsername: setLoggedUsername} = useContext(UserContext);
 
     const navigate = useNavigate();
 
     async function handleLogin(username, password) {
         try {
             const api_res = await axios.post('/login', {username, password})
+            setId(api_res.data.userData.userID)
+            setLoggedUsername(api_res.data.userData.userName)
+            console.log(api_res.data.userData)
         if (api_res.status === 200 && api_res.data.success) {
             setSubmitStatus(true);
         } else {

@@ -4,7 +4,7 @@ import '../styles/notoken.css'
 
 
 export function NoTokenError({ message }) {
-  const [timer, setTimer] = useState(4); 
+  const [timer, setTimer] = useState(10); 
   const navigate = useNavigate(); 
 
   useEffect(() => {
