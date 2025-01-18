@@ -1,9 +1,10 @@
 import axios from "axios"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useContext } from "react"
 import { NoTokenError } from "./errors/NoToken";
 import { handleMouseDown } from '../components/utilities/resize'
 import './styles/dashboard.css'
 import send_button_icon from '../assets/send.svg'
+import { UserContext } from "../UserContext";
 
 export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
@@ -11,7 +12,7 @@ export default function Dashboard() {
     const [fListWidth, setFListWidth] = useState(30); 
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
-
+    const { id, username } = useContext(UserContext);
     useEffect(() => {
         async function verifyToken() {
             try {
@@ -29,21 +30,26 @@ export default function Dashboard() {
         verifyToken();
     }, [])
 
-   
-
     useEffect(() => {
-        const ws = new WebSocket('ws://localhost:4000/messages')
-        setWs(ws)
-        ws.onopen = () => {
-            ws.send("Hello Server")
-        },
-        ws.onmessage = (msg) => {
-            console.log(msg.data)
+        const userData = {
+            username,
+            id
         }
+        console.log(userData)
+            const ws = new WebSocket('ws://localhost:4000/messages')
+            setWs(ws)
+            ws.onopen = () => {
+                ws.send(JSON.stringify(userData))
+            },
+            ws.onmessage = (msg) => {
+                console.log(msg.data)
+            }
+
+      
         return () => {
             ws.close();
         }
-    }, [])
+    }, [username, id])
 
     if (!isAuthorized) {
         return <NoTokenError message={tokenResponse}/>

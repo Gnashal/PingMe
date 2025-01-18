@@ -1,7 +1,7 @@
 import { data, Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
 import './styles/login.css'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import { UserContext } from '../UserContext'
 
@@ -17,10 +17,9 @@ export default function Login() {
     async function handleLogin(username, password) {
         try {
             const api_res = await axios.post('/login', {username, password})
+        if (api_res.status === 200 && api_res.data.success) {
             setId(api_res.data.userData.userID)
             setLoggedUsername(api_res.data.userData.userName)
-            console.log(api_res.data.userData)
-        if (api_res.status === 200 && api_res.data.success) {
             setSubmitStatus(true);
         } else {
             setError('Unexpected response from the server.');
@@ -53,10 +52,12 @@ export default function Login() {
             setError('Error contacting the database. Please try again later.');
         } 
     }
-
+    useEffect(() => {
         if (isSubmitted) {
             navigate('/dashboard')
         }
+    }, [isSubmitted])
+        
     return (
         <>
         <img src={logo} alt="PingMe Logo" className="logo" /> 
