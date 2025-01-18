@@ -35,7 +35,7 @@ export async function verifyUser(data: { username: string; password: string }) {
     if (!isMatch) {
       return { success: false, message: "Invalid credentials" };
     }
-    return { success: true, user };
+    return { success: true, UserData: user };
   } catch (err) {
     console.error("Error verifying user:", err);
     return { success: false, message: "An error occurred" };

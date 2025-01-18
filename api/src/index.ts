@@ -3,7 +3,7 @@ import { Elysia , t } from "elysia";
 import cors from '@elysiajs/cors'
 import jwt from '@elysiajs/jwt'
 import mongoose from "mongoose";
-import { registerUser, verifyUser } from '../middleware/auth.ts'
+import {  registerUser, verifyUser } from '../middleware/auth.ts'
 
 const url: any = process.env.MONGO_URL;
 console.log(url);
@@ -36,19 +36,15 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 .ws('/messages', {
-  open: (ws) => {
-    console.log("WebSocket connection established.");
-    ws.send("Welcome to the WebSocket server!");
-  },
-  message: (ws, msg) => {
-    console.log(`Received message: ${msg}`);
-    ws.send(`Echo: ${msg}`);
-  },
-  close: (ws, code) => {
-    console.log(`WebSocket connection closed with code: ${code}`);
-  }
+    open: (ws) => {
+      console.log("websocekt open")
+      ws.send("Ws server connected")
+    },
+    message: (ws, msg) => {
+      console.log("Response from client: ", msg)
+      ws.send("Message recievd")
+    }
 })
-.get('/test', 'Hello from backend')
 
 .post('/register', async ({ body, set }) => {
   const {success, user, error, message} = await registerUser(body)
@@ -66,7 +62,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
 })
 
 .post('/login', async ({body, jwt, cookie: {auth}}) => {
-  const {success, user, message} = await verifyUser(body)
+  const {success, UserData: user, message} = await verifyUser(body)
   if (!success || !user) {
     return { success: false, message}
   }
@@ -78,12 +74,15 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     sameSite: 'strict',
     maxAge: 7 * 86400,
   })
-  console.log(`Logged in user:: ${user} with toke: ${token}`)
-
+  console.log(`Logged in user:: ${user._id} with toke: ${token}`)
+  const userData = {
+    userID: user._id,
+    userName: user.username
+  }
   return {
     success: true,
     message: "Login successful.",
-    data: { token, user }, 
+    userData: userData,
     status: 200,  
   };
 }, {
@@ -93,7 +92,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   })
 })
 .post('/verify-user', async ({body}) => {
-  const {success, user, message} = await verifyUser(body)
+  const {success, UserData:user, message} = await verifyUser(body)
   if (!success || !user) {
     return {success: false, message}
   }
