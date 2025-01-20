@@ -21,6 +21,8 @@ async function connectDb() {
 }
 connectDb();
 
+let users = new Map();
+
 
 
 const app = new Elysia()
@@ -40,9 +42,19 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
       console.log("websocekt open")
       ws.send("Ws server connected")
     },
-    message: (ws, msg) => {
-      console.log("Response from client: ", msg)
-      ws.send("Message recievd")
+    message: (ws, body: any) => {
+      try {
+        console.log("Recieved user data: ", body)
+        users.set(ws, body)
+        console.log("Online Users: ")
+        users.forEach((users) => {
+          console.log(users)
+        })
+    } catch (error) {
+        console.error("Error parsing JSON: ", error);
+    }
+    ws.send("Message received");
+      
     }
 })
 
