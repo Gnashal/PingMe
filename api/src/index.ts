@@ -45,7 +45,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     message: (ws, body: any) => {
       try {
         console.log("Recieved user data: ", body)
-        users.set(ws, body)
+        users.set(body.id, body)
         console.log("Online Users: ")
         users.forEach((users) => {
           console.log(users)
@@ -53,8 +53,13 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     } catch (error) {
         console.error("Error parsing JSON: ", error);
     }
-    ws.send("Message received");
+    users.forEach((users) => {
+      ws.send(users);
+    })
       
+    },
+    close: (ws) => {
+      users.delete(ws)
     }
 })
 
