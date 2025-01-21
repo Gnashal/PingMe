@@ -26,7 +26,7 @@ export default function Register() {
         try {
             const api_res = await axios.post('/register', { username, password });
     
-            if (api_res.status === 200) {
+            if (api_res.status === 201) {
                 setSubmitStatus(true);
             } else {
                 setError('Unexpected response from the server.');
