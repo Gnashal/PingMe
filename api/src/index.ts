@@ -1,9 +1,10 @@
 import swagger from "@elysiajs/swagger";
-import { Elysia , t } from "elysia";
+import { Context, Elysia , t } from "elysia";
 import cors from '@elysiajs/cors'
 import jwt from '@elysiajs/jwt'
 import mongoose from "mongoose";
 import {  registerUser, verifyUser } from '../middleware/auth.ts'
+import { ElysiaWS } from "elysia/dist/ws/index";
 
 const url: any = process.env.MONGO_URL;
 console.log(url);
@@ -38,36 +39,48 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 .ws('/messages', {
-    open: (ws) => {
-      console.log("websocekt open")
-      ws.send("Ws server connected")
+    open: (ws: ElysiaWS) => {
+      console.log("WebSocket open");
     },
     message: (ws, body: any) => {
       try {
-        if (body === null) {
+        if (!body || !body.id) {
+          console.error("Invalid User creds ", body)
           return;
         }
-        console.log("Recieved user data: ", body)
-        users.set(body.id, body)
-        console.log("Online Users: ")
-        users.forEach((users) => {
-          console.log(users)
-        })
-    } catch (error) {
-        console.error("Error parsing JSON: ", error);
-    }
-    users.forEach((users) => {
-      ws.send(users);
-    })
+        if (!users.has(body.id)) {
+          users.set(body.id, body)
+        } else {
+          console.log("Already Online")
+        }
+
+        console.log("Online Users:");
+        users.forEach((user) => {
+            console.log(user);
+        });
+        const usersArray = Array.from(users.values());
+        ws.send(JSON.stringify(usersArray));
+
+      } catch (error) {
+          console.error("Error processing message: ", error);
+      }
       
     },
     close: (ws, body: any) => {
-      if (body && body.id) {
-        console.log(`User with ID: ${body.id} being deleted`)
-        users.delete(body.id)
-      } else {
-        console.error("Error deleting: ", body)
-      }
+      try {
+        if (body && body.id) {
+            if (users.has(body.id)) {
+                console.log(`Removing User: ${body.id}`);
+                users.delete(body.id);
+            } else {
+                console.error(`User with ID ${body.id} not found.`);
+            }
+        } else {
+            console.error("Invalid user data on close:", body);
+        }
+    } catch (err) {
+        console.error("Error deleting user:", err);
+    }
     }
 })
 
@@ -91,7 +104,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   if (!success || !user) {
     return { success: false, message}
   }
-  const token = await jwt.sign({userId: user.password});
+  const token = await jwt.sign({ userName: user.username, userPw: user.password });
   auth.set({
     value: token,
     httpOnly: true,
