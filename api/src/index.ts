@@ -44,6 +44,9 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     },
     message: (ws, body: any) => {
       try {
+        if (body === null) {
+          return;
+        }
         console.log("Recieved user data: ", body)
         users.set(body.id, body)
         console.log("Online Users: ")
@@ -58,8 +61,13 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     })
       
     },
-    close: (ws) => {
-      users.delete(ws)
+    close: (ws, body: any) => {
+      if (body && body.id) {
+        console.log(`User with ID: ${body.id} being deleted`)
+        users.delete(body.id)
+      } else {
+        console.error("Error deleting: ", body)
+      }
     }
 })
 
