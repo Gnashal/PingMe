@@ -10,6 +10,7 @@ export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
     const [isAuthorized, setAuthorization] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
+    const [onlineUsers, setOnlineUsers] = useState([]);
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
     const { id, username } = useContext(UserContext);
@@ -30,26 +31,39 @@ export default function Dashboard() {
         verifyToken();
     }, [])
 
-    useEffect(() => {
+    useEffect( () => {
         const userData = {
             username,
             id
         }
+        
         console.log(userData)
-            const ws = new WebSocket('ws://localhost:4000/messages')
+            const ws =  new WebSocket('ws://localhost:4000/messages')
             setWs(ws)
             ws.onopen = () => {
                 ws.send(JSON.stringify(userData))
             },
             ws.onmessage = (msg) => {
-                console.log(msg.data)
+                const parsedData = JSON.parse(msg.data)
+                setOnlineUsers(parsedData)
             }
 
-      
+        
         return () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                const disconnectMsg = {
+                    id: userData.id ,
+                    action: 'disconnect'
+                };
+                ws.send(JSON.stringify(disconnectMsg))
+            }
             ws.close();
         }
     }, [username, id])
+
+    useEffect(() => {
+        console.log("Online Users updated: ", onlineUsers)
+    }, [onlineUsers])
 
     if (!isAuthorized) {
         return <NoTokenError message={tokenResponse}/>
