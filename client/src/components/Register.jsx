@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import './styles/register.css';
 import logo from '../assets/logo.jpg'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function Register() {
@@ -38,9 +38,11 @@ export default function Register() {
         }
     };
 
-    if (isSubmitted) {
-        navigate('/login')
-    }
+    useEffect(() => {
+        if (isSubmitted) {
+            navigate('/login')
+        }
+    }, [isSubmitted])
     return (
         <>
          <img src={logo} alt="PingMe Logo" className="logo" /> 

@@ -10,7 +10,7 @@ export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
     const [isAuthorized, setAuthorization] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
-    const [onlineUsers, setOnlineUsers] = useState([]);
+    // const [onlineUsers, setOnlineUsers] = useState([]);
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
     const { id, username } = useContext(UserContext);
@@ -36,18 +36,12 @@ export default function Dashboard() {
             username,
             id
         }
-        
-        console.log(userData)
             const ws =  new WebSocket('ws://localhost:4000/messages')
             setWs(ws)
             ws.onopen = () => {
                 ws.send(JSON.stringify(userData))
             },
-            ws.onmessage = (msg) => {
-                const parsedData = JSON.parse(msg.data)
-                setOnlineUsers(parsedData)
-            }
-
+            ws.addEventListener('message', handleOnlineUsers)
         
         return () => {
             if (ws.readyState === WebSocket.OPEN) {
@@ -61,9 +55,10 @@ export default function Dashboard() {
         }
     }, [username, id])
 
-    useEffect(() => {
-        console.log("Online Users updated: ", onlineUsers)
-    }, [onlineUsers])
+    function handleOnlineUsers(ev) {
+        const userMetaData = JSON.parse(ev.data)
+        console.log(userMetaData)
+    }
 
     if (!isAuthorized) {
         return <NoTokenError message={tokenResponse}/>
