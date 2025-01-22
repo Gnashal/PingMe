@@ -5,6 +5,7 @@ import jwt from '@elysiajs/jwt'
 import mongoose from "mongoose";
 import {  registerUser, verifyUser } from '../middleware/auth.ts'
 import { ElysiaWS } from "elysia/dist/ws/index";
+import { getUser } from "../middleware/user.ts";
 
 const url: any = process.env.MONGO_URL;
 console.log(url);
@@ -112,7 +113,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     sameSite: 'strict',
     maxAge: 7 * 86400,
   })
-  console.log(`Logged in user:: ${user._id} with toke: ${token}`)
+  console.log(`Logged in user:: ${user._id} with token: ${token}`)
   const userData = {
     userID: user._id,
     userName: user.username
@@ -165,6 +166,24 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     return {success: false, message: "Unauthorized", Error: err}
   }
 })
+.get('/get-users', async ({set, body}) => {
+    const {success, User: gotUser, Error, status} = await getUser(body);
+    if (!success && !gotUser) {
+      set.status = status
+      return {success: false, Error}
+    }
+    return {
+      success: true,
+      data: { gotUser },
+      status: 200
+    }
+},
+  {
+    body: t.Object({
+      username: t.String(),
+    })
+  }
+)
 .listen({
   port: 4000
 })
