@@ -4,6 +4,7 @@ import { NoTokenError } from "./errors/NoToken";
 import { handleMouseDown } from '../components/utilities/resize'
 import './styles/dashboard.css'
 import send_button_icon from '../assets/send.svg'
+import search_icon from '../assets/search.svg'
 import { UserContext } from "../UserContext";
 
 export default function Dashboard() {
@@ -13,6 +14,7 @@ export default function Dashboard() {
     // const [onlineUsers, setOnlineUsers] = useState([]);
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
+    const [searchEntry, setSearchEntry] = useState('')
     const { id, username } = useContext(UserContext);
     useEffect(() => {
         async function verifyToken() {
@@ -60,13 +62,29 @@ export default function Dashboard() {
         console.log(userMetaData)
     }
 
+    function handleSearch(ev) {
+        ev.preventDefault();
+        console.log(searchEntry)
+    }
+
     if (!isAuthorized) {
         return <NoTokenError message={tokenResponse}/>
     }
     return(
         <>
        <div className="dash-wrapper">
-        <div className="fList-wrapper" style={{ width: `${fListWidth}%` }}>friends list</div>
+        <div className="fList-wrapper" style={{ width: `${fListWidth}%` }}>
+        <form className="search-box" onSubmit={handleSearch}>
+            <button className="search-button" type="submit">
+            <img src={search_icon} alt="search-button" />
+            </button>
+            <input 
+            type="text"
+            value={searchEntry}
+            onChange={e => setSearchEntry(e.target.value)}
+            placeholder="Search for Users" />
+        </form>
+        friends list</div>
         <div
                 ref={resizerRef}
                 className="resizer"
