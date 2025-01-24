@@ -166,8 +166,9 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     return {success: false, message: "Unauthorized", Error: err}
   }
 })
-.get('/get-users', async ({set, body}) => {
-    const {success, User: gotUser, Error, status} = await getUser(body);
+.get('/get-users', async ({ query, set }) => {
+   const {username} = query;
+    const {success, User: gotUser, Error, status} = await getUser({username});
     if (!success && !gotUser) {
       set.status = status
       return {success: false, Error}
@@ -179,7 +180,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     }
 },
   {
-    body: t.Object({
+    query: t.Object({
       username: t.String(),
     })
   }
