@@ -11,13 +11,20 @@ export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
     const [isAuthorized, setAuthorization] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
-    // const [onlineUsers, setOnlineUsers] = useState([]);
+    const [onlineUsers, setOnlineUsers] = useState([]);
+    const [chatList, setChatList] = useState([]);
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
     const [searchEntry, setSearchEntry] = useState('')
     const { id, username } = useContext(UserContext);
     useEffect(() => {
         async function verifyToken() {
+            const usrId = sessionStorage.getItem('id')
+                if (!usrId) {
+                    setTokenResponse("No Credentials");
+                    console.error("No Id found in Session");
+                    return;
+                }
             try {
                 await axios.get('/verify-token')
                 setTokenResponse('')
@@ -62,9 +69,33 @@ export default function Dashboard() {
         console.log(userMetaData)
     }
 
-    function handleSearch(ev) {
+    async function handleSearch(ev) {
         ev.preventDefault();
-        console.log(searchEntry)
+        try {
+            const response = await axios.get('/get-user', {
+                params: {
+                    username: searchEntry
+                },
+            });
+            if (response.data.sucess && response.data.data.gotUser) {
+                const addResponse = await axios.post('/new-session', {
+                    userId: sessionStorage.getItem('id'),
+                    chatUserId: response.data.data.gotUser._id,
+                });
+                if (addResponse.data.sucess) {
+                    setChatList(prevChatList => [...prevChatList, user]);
+                } else {
+                    console.error("Failed to add user to chat list:", addResponse.data.message);
+                    return;
+                }
+            } else {
+                console.error("User not Found");
+                return;
+            }
+        } catch(err) {
+            console.error(err);
+            return;
+        }
     }
 
     if (!isAuthorized) {
