@@ -5,7 +5,7 @@ import jwt from '@elysiajs/jwt'
 import mongoose from "mongoose";
 import {  registerUser, verifyUser } from '../middleware/auth.ts'
 import { ElysiaWS } from "elysia/dist/ws/index";
-import { addToChatSession, getUser } from "../middleware/user.ts";
+import { addToChatSession, fetchActiveSessions, getUser } from "../middleware/user.ts";
 
 const url: any = process.env.MONGO_URL;
 console.log(url);
@@ -177,8 +177,8 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   }
 })
 .get('/get-user', async ({ query, set }) => {
-   const {username} = query;
-    const {success, User: gotUser, Error, status} = await getUser({username});
+  const {username} = query;
+  const {success, User: gotUser, Error, status} = await getUser({username});
     if (!success && !gotUser) {
       set.status = status
       return {success: false, Error}
@@ -186,7 +186,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
     return {
       success: true,
       data: { gotUser },
-      status: 200
+      status: status
     }
 },
   {
@@ -194,7 +194,22 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
       username: t.String(),
     })
   }
-)
+) .get('/fetch-sessions', async ({query, set}) => {
+    const {userId} = query;
+    const {success, data: sessions, message, status} = await fetchActiveSessions({userId});
+
+    if (!success && !sessions) {
+      set.status = status;
+      console.log(Error)
+      return {success: false, Error, message}
+    }
+    console.log(message);
+    return {success: true, data: {sessions}, status: status}
+}, {
+  query: t.Object({
+    userId: t.Any()
+  })
+})
 .listen({
   port: 4000
 })

@@ -9,7 +9,7 @@ const ChatSessionSchema = new Schema <IChatSession>(
     {
         participants: [{
             type: Schema.Types.ObjectId,
-            ref: 'User',
+            ref: 'user',
             require: true,
         }]
     }, {timestamps: true}

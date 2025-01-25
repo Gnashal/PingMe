@@ -35,7 +35,27 @@ export async function addToChatSession(body : {userId: any, chatUserId: any}) {
 
     } catch (err) {
         console.error("Unexpected Error: ", err);
-        return {success: false, message: err, status: 500};
+        return {success: false, Error: err, status: 500};
     }
 
+}
+
+export async function fetchActiveSessions(body: {userId: any}) {
+    const {userId} = body;
+    if (!userId) {
+        return {success: false, status: 400, message: "No arguments passed"};
+    }
+    try {
+        const response = await ChatSession.find({
+            participants: userId,
+        }).populate('participants', 'username');
+        if (response.length === 0) {
+            return {success: false, status: 400, message: response}
+        }
+
+        return {success: true, status: 200, message: "Sessions fetched!", data: response}
+    } catch (err) {
+        console.error("Error fetching sessions, ", err);
+        return {success: false, status: 500, message: err};
+    }
 }
