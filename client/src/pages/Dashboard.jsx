@@ -1,17 +1,17 @@
 import axios from "axios"
 import { useEffect, useState, useRef, useContext } from "react"
 import { NoTokenError } from "./errors/NoToken";
-import { handleMouseDown } from '../components/utilities/resize'
+import { handleMouseDown } from './utilities/resize'
 import './styles/dashboard.css'
 import send_button_icon from '../assets/send.svg'
 import search_icon from '../assets/search.svg'
 import { UserContext } from "../UserContext";
+import { UserList } from "./components/UserList";
 
 export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
     const [isAuthorized, setAuthorization] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
-    const [onlineUsers, setOnlineUsers] = useState([]);
     const [chatList, setChatList] = useState([]);
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
@@ -40,50 +40,48 @@ export default function Dashboard() {
         verifyToken();
     }, [])
 
-    useEffect( () => {
-        const userData = {
-            username,
-            id
-        }
-            const ws =  new WebSocket('ws://localhost:4000/messages')
-            setWs(ws)
-            ws.onopen = () => {
-                ws.send(JSON.stringify(userData))
-            },
-            ws.addEventListener('message', handleOnlineUsers)
-        
-        return () => {
-            if (ws.readyState === WebSocket.OPEN) {
-                const disconnectMsg = {
-                    id: userData.id ,
-                    action: 'disconnect'
-                };
-                ws.send(JSON.stringify(disconnectMsg))
-            }
-            ws.close();
-        }
-    }, [username, id])
+   useEffect(() => {
+    async function fetchUserSessions() {
+        try {
+            const response = await axios.get('/fetch-sessions', {
+                params: {
+                    userId: id,
+                }
+            })
+            if (response.data.success) {
+                const sessions = response.data.data.sessions;
+                
+                const otherUsers = sessions.flatMap(session => 
+                    session.participants.filter(participant => participant._id !== id)
+                )
 
-    function handleOnlineUsers(ev) {
-        const userMetaData = JSON.parse(ev.data)
-        console.log(userMetaData)
+                setChatList(otherUsers);
+            }
+        } catch (err) {
+            console.error("Error fetching user sessions, ", err);
+            return;
+        }
     }
+    fetchUserSessions();
+   }, [id]) 
 
     async function handleSearch(ev) {
         ev.preventDefault();
+        console.log(searchEntry)
         try {
             const response = await axios.get('/get-user', {
                 params: {
                     username: searchEntry
                 },
             });
-            if (response.data.sucess && response.data.data.gotUser) {
+            if (response.data.success && response.data.data.gotUser) {
+                const searchedUser = response.data.data.gotUser;
                 const addResponse = await axios.post('/new-session', {
                     userId: sessionStorage.getItem('id'),
                     chatUserId: response.data.data.gotUser._id,
                 });
-                if (addResponse.data.sucess) {
-                    setChatList(prevChatList => [...prevChatList, user]);
+                if (addResponse.data.success) {
+                    setChatList(prevChatList => [...prevChatList, searchedUser]);
                 } else {
                     console.error("Failed to add user to chat list:", addResponse.data.message);
                     return;
@@ -104,18 +102,34 @@ export default function Dashboard() {
     return(
         <>
        <div className="dash-wrapper">
-        <div className="fList-wrapper" style={{ width: `${fListWidth}%` }}>
+        <div className="user-list-wrapper" style={{ width: `${fListWidth}%` }}>
         <form className="search-box" onSubmit={handleSearch}>
             <button className="search-button" type="submit">
             <img src={search_icon} alt="search-button" />
             </button>
-            <input 
-            type="text"
-            value={searchEntry}
-            onChange={e => setSearchEntry(e.target.value)}
-            placeholder="Search for Users" />
+            <div className="search-input-container">
+                <input 
+                type="text"
+                value={searchEntry}
+                onChange={e => setSearchEntry(e.target.value)}
+                />
+            <span className="btn-shine">Search for Users</span>
+            </div>
         </form>
-        friends list</div>
+        <div className="user-list-container">
+            <h3>Chats</h3>
+            {chatList.length === 0 ? (
+                <p>No active chats. Start by searching for users to chat with</p>
+            ): (
+                chatList.map((user) => (
+                    <UserList key={user._id} user={user}/>
+                ))
+            )}
+            </div>
+                <div className="user-profile">
+                    <h3>USER PROFILE</h3>
+                </div>
+        </div>
         <div
                 ref={resizerRef}
                 className="resizer"
