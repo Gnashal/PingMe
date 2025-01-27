@@ -12,6 +12,7 @@
     "@scalar/themes": "^0.9.61",
     "@types/bcrypt": "^5.0.2",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "elysia": "latest",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.4"

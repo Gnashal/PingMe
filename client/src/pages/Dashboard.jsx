@@ -13,9 +13,13 @@ export default function Dashboard() {
     const [isAuthorized, setAuthorization] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
     const [chatList, setChatList] = useState([]);
+    const [currChat, setCurrChat] = useState({
+        username: '',
+        id: '',
+    });
     const [ws, setWs] = useState(null);
     const resizerRef = useRef();
-    const [searchEntry, setSearchEntry] = useState('')
+    const [searchEntry, setSearchEntry] = useState('');
     const { id, username } = useContext(UserContext);
     useEffect(() => {
         async function verifyToken() {
@@ -96,6 +100,10 @@ export default function Dashboard() {
         }
     }
 
+    const handleUserListData = (data) => {
+        setCurrChat(data);
+    }
+
     if (!isAuthorized) {
         return <NoTokenError message={tokenResponse}/>
     }
@@ -122,7 +130,7 @@ export default function Dashboard() {
                 <p>No active chats. Start by searching for users to chat with</p>
             ): (
                 chatList.map((user) => (
-                    <UserList key={user._id} user={user}/>
+                    <UserList key={user._id} user={user} sendUserData={handleUserListData}/>
                 ))
             )}
             </div>
@@ -136,7 +144,11 @@ export default function Dashboard() {
                 onMouseDown={() => handleMouseDown(setFListWidth)}
             ></div>
         <div className="chat-wrapper" style={{ width: `${100 - fListWidth}%` }}>
-            <div className="messages">messages</div>
+            <div className="messages">
+                <div className="curr-chat-profile">
+                    <h1>{currChat.username}</h1>
+                </div>
+            </div>
                 <form className="send-message-form"> 
                     <input type="text" placeholder="  Send Message"/>
                     <button className="sendButton" type="submit">
