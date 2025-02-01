@@ -7,6 +7,7 @@ import send_button_icon from '../assets/send.svg'
 import search_icon from '../assets/search.svg'
 import { UserContext } from "../UserContext";
 import { UserList } from "./components/UserList";
+import { UserProfile } from "./components/UserProfile";
 
 export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
@@ -135,7 +136,7 @@ export default function Dashboard() {
             )}
             </div>
                 <div className="user-profile">
-                    <h3>USER PROFILE</h3>
+                  <UserProfile userData={{id, username}}/>
                 </div>
         </div>
         <div

@@ -1,0 +1,53 @@
+.profile-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* background: #1e1e2f; */
+    padding: 12px 16px;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    height: 100%;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+}
+
+.user-data-container {
+    flex: 1;
+    margin-left: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-data-container p {
+    font-size: 12px;
+    color: #a0a0b0;
+    margin-top: 2px;
+}
+
+.settings-container {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.settings-container img {
+    width: 25px;
+    height: 25px;
+    opacity: 0.8;
+}
+
+.settings-container:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}

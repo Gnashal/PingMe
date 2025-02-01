@@ -14,7 +14,8 @@ html, body {
     width: 100%;
 }
 .user-list-wrapper {
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     width: 30%;
     height: 100%;
     background-color: #2f3136;
@@ -24,14 +25,22 @@ html, body {
     align-items: center;
     overflow: auto;
     border-right: 1px solid #202225;
+    z-index: 2;
 }
 .user-list-container {
     padding: 10px;
-    height: calc(100vh - 15%);
+    height: calc(100vh - 18%);
     overflow-y: auto;
 }
 .user-profile {
-    height: 1vh;
+    display: flex;
+    flex-grow: 1;
+    height: 6.5vh; 
+    justify-content: center; 
+    padding: 0;
+    margin: 0;
+    bottom: 0;
+    z-index: 3;
 }
 .chat-wrapper {
     position: relative;
