@@ -6,7 +6,7 @@ export function UserList({user, sendUserData}) {
         username: user.username ,
         id: user._id,
     }
-    const firstLetter = currSessionUser.username[0];
+    const firstLetter = currSessionUser.username[0].toUpperCase();
 
     useEffect(() => {
       const getRandomColor = () => {

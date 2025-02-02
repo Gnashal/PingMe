@@ -8,10 +8,12 @@ import search_icon from '../assets/search.svg'
 import { UserContext } from "../UserContext";
 import { UserList } from "./components/UserList";
 import { UserProfile } from "./components/UserProfile";
+import { Settings } from "./components/Settings";
 
 export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
     const [isAuthorized, setAuthorization] = useState(false);
+    const [settingsClicked, setSettingsClicked] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
     const [chatList, setChatList] = useState([]);
     const [currChat, setCurrChat] = useState({
@@ -110,6 +112,13 @@ export default function Dashboard() {
     }
     return(
         <>
+         {settingsClicked && (
+        <div className="settings-overlay" onClick={() => setSettingsClicked(false)}>
+        <div className="settings-popup" onClick={(e) => e.stopPropagation()}>
+            <Settings />
+        </div>
+    </div>
+    )}
        <div className="dash-wrapper">
         <div className="user-list-wrapper" style={{ width: `${fListWidth}%` }}>
         <form className="search-box" onSubmit={handleSearch}>
@@ -136,7 +145,7 @@ export default function Dashboard() {
             )}
             </div>
                 <div className="user-profile">
-                  <UserProfile userData={{id, username}}/>
+                  <UserProfile userData={{id, username}} onSettingsClicked={setSettingsClicked}/>
                 </div>
         </div>
         <div

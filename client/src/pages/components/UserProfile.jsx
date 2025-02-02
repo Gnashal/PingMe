@@ -1,7 +1,10 @@
 import settings_button from "./comp-assets/settings.svg"
 import "../styles/userprofile.css"
-export function UserProfile({userData}) {
-    const firstLetter = userData.username ? userData.username[0] : '';
+import {  useState } from "react";
+export function UserProfile({userData, onSettingsClicked}) {
+    const firstLetter = userData.username ? userData.username[0].toUpperCase() : '';
+
+   
     return (
         <>
         <div className="profile-container">
@@ -12,9 +15,10 @@ export function UserProfile({userData}) {
                 <p>{userData.id}</p>
             </div>
             <div className="settings-container">
-                <img  src={settings_button} alt="settings button"/>
+                <img onClick={() => onSettingsClicked(prev => !prev)} src={settings_button} alt="settings button"/>
             </div>
         </div>
         </>
     )
+    
 }

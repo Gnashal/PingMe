@@ -190,6 +190,25 @@ html, body {
     transition: opacity 0.3s ease;
 }
 
-
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.settings-popup {
+    background: #2f3136;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    max-width: 20%;
+    max-height: 40%;
+    z-index: 1001;
+}
 
 
