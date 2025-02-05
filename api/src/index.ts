@@ -3,9 +3,9 @@ import { Context, Elysia , t } from "elysia";
 import cors from '@elysiajs/cors'
 import jwt from '@elysiajs/jwt'
 import mongoose from "mongoose";
-import {  registerUser, verifyUser } from '../middleware/auth.ts'
-import { ElysiaWS } from "elysia/dist/ws/index";
+import {   registerUser, verifyToken, verifyUser } from '../middleware/auth.ts';
 import { addToChatSession, fetchActiveSessions, getUser } from "../middleware/user.ts";
+import { ObjectId } from "mongodb";
 
 const url: any = process.env.MONGO_URL;
 console.log(url);
@@ -23,11 +23,9 @@ async function connectDb() {
 }
 connectDb();
 
-let users = new Map();
-
-
-
+let onlineUsers = new Map();
 const app = new Elysia()
+
 .use(swagger())
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is not set.');
@@ -39,49 +37,61 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
+
+
 .ws('/messages', {
-    open: (ws: ElysiaWS) => {
-      console.log("WebSocket open");
+    open: async(ws) => {
+      try {
+        const cookies = ws.data.headers.cookie || "";
+        const activeUser = await verifyToken(cookies, ws.data.jwt);
+        onlineUsers.set(activeUser.userId, {
+          userData: activeUser,  
+          ws: ws                
+        });
+
+        const activeUsersArray = Array.from(onlineUsers.values()).map(user => user.userData);
+        console.log("Online Users: ")
+        activeUsersArray.forEach(user => console.log(user))
+        ws.send(JSON.stringify({
+          type: 'active-users',
+          data: activeUsersArray
+        }));
+        console.log("WebSocket open");
+      } catch (err) {
+        console.error(err);
+      }
     },
     message: (ws, body: any) => {
       try {
-        if (!body || !body.id) {
-          console.error("Invalid User creds ", body)
-          return;
+        const {msgData} = body;
+        let recipient, res;
+        console.log("Recieved:", msgData)
+        if (msgData) {
+          recipient = onlineUsers.get(msgData.to);
+          if (recipient) {
+            res = recipient.ws.send(JSON.stringify({msgData}))
+          }
         }
-        if (!users.has(body.id)) {
-          users.set(body.id, body)
-        } else {
-          console.log("Already Online")
+        if (res) {
+          console.log("Message sent to user:", recipient.userData);
         }
-
-        console.log("Online Users:");
-        users.forEach((user) => {
-            console.log(user);
-        });
-        const usersArray = Array.from(users.values());
-        ws.send(JSON.stringify(usersArray));
-
-      } catch (error) {
-          console.error("Error processing message: ", error);
+      } catch (err) {
+        console.error("WS Error: ", err)
       }
       
-    },
+    }, 
     close: (ws, body: any) => {
       try {
-        if (body && body.id) {
-            if (users.has(body.id)) {
-                console.log(`Removing User: ${body.id}`);
-                users.delete(body.id);
-            } else {
-                console.error(`User with ID ${body.id} not found.`);
-            }
-        } else {
-            console.error("Invalid user data on close:", body);
+        for (let [userId, user] of onlineUsers) {
+          if (user.ws === ws) {
+            console.log(`WebSocket closed for user: ${userId}`);
+            onlineUsers.delete(userId); 
+            break;
+          }
         }
-    } catch (err) {
-        console.error("Error deleting user:", err);
-    }
+      } catch (err) {
+        console.error("Error during close:", err);
+      }
     }
 })
 
@@ -105,7 +115,9 @@ app.use(jwt({ secret: process.env.JWT_SECRET }))
   if (!success || !user) {
     return { success: false, message}
   }
-  const token = await jwt.sign({ userName: user.username, userPw: user.password });
+
+  const userId = (user._id as unknown as ObjectId).toString();
+  const token = await jwt.sign({ userName: user.username, userId });
   auth.set({
     value: token,
     httpOnly: true,

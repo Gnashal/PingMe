@@ -5,10 +5,12 @@ import { handleMouseDown } from './utilities/resize'
 import './styles/dashboard.css'
 import send_button_icon from '../assets/send.svg'
 import search_icon from '../assets/search.svg'
+import start_msg from "../assets/startmessage.svg"
 import { UserContext } from "../UserContext";
 import { UserList } from "./components/UserList";
 import { UserProfile } from "./components/UserProfile";
 import { Settings } from "./components/Settings";
+import { Chat } from "./components/Chat";
 
 export default function Dashboard() {
     const [tokenResponse, setTokenResponse] = useState('');
@@ -16,12 +18,10 @@ export default function Dashboard() {
     const [settingsClicked, setSettingsClicked] = useState(false);
     const [fListWidth, setFListWidth] = useState(30); 
     const [chatList, setChatList] = useState([]);
-    const [currChat, setCurrChat] = useState({
-        username: '',
-        id: '',
-    });
-    const [ws, setWs] = useState(null);
+    const [currChat, setCurrChat] = useState({});
+    const [newMsg, setNewMsg] = useState('');
     const resizerRef = useRef();
+    const ws = useRef(null);
     const [searchEntry, setSearchEntry] = useState('');
     const { id, username } = useContext(UserContext);
     useEffect(() => {
@@ -72,6 +72,28 @@ export default function Dashboard() {
     fetchUserSessions();
    }, [id]) 
 
+   useEffect(() => {
+        ws.current = new WebSocket("ws://localhost:4000/messages")
+        ws.current.onopen = () => {   
+            console.log("Connected to ws")
+        }
+        ws.current.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log("Received message:", message);
+        };
+
+        ws.current.onerror = (error) => {
+            console.error("WebSocket Error:", error);
+        };
+
+        ws.current.onclose = () => {
+            console.log("WebSocket connection closed");
+        };
+
+        return () => {
+            ws.current.close(); 
+        };
+   }, [])
     async function handleSearch(ev) {
         ev.preventDefault();
         console.log(searchEntry)
@@ -100,6 +122,22 @@ export default function Dashboard() {
         } catch(err) {
             console.error(err);
             return;
+        }
+    }
+
+    function sendMessage(ev) {
+        ev.preventDefault();
+        if (!newMsg.trim()) return;
+        const msgData={
+            from : id ,
+            to : currChat.id ,
+            content: newMsg 
+        }
+        if (ws.current.readyState === WebSocket.OPEN) {
+            ws.current.send(JSON.stringify({msgData}));
+            setNewMsg("");
+        } else {
+            console.error("Websocket Error")
         }
     }
 
@@ -140,7 +178,7 @@ export default function Dashboard() {
                 <p>No active chats. Start by searching for users to chat with</p>
             ): (
                 chatList.map((user) => (
-                    <UserList key={user._id} user={user} sendUserData={handleUserListData}/>
+                    <UserList key={user._id} user={user} sendUserData={handleUserListData} />
                 ))
             )}
             </div>
@@ -154,13 +192,25 @@ export default function Dashboard() {
                 onMouseDown={() => handleMouseDown(setFListWidth)}
             ></div>
         <div className="chat-wrapper" style={{ width: `${100 - fListWidth}%` }}>
-            <div className="messages">
-                <div className="curr-chat-profile">
-                    <h1>{currChat.username}</h1>
-                </div>
-            </div>
-                <form className="send-message-form"> 
-                    <input type="text" placeholder="  Send Message"/>
+       
+                {currChat.username ?(
+                    <>
+                    <div className="curr-chat-profile">
+                        <h1>{currChat.username}</h1>
+                    </div>
+                    <Chat currChat={currChat}/>
+                    </>
+                ): (
+                    <div className="welcome-msg-wrapper">
+                        <img src={start_msg} alt="start-message" className="welcome-msg" />
+                    </div>
+                )}
+                <form className="send-message-form" onSubmit={sendMessage}> 
+                    <input
+                    value={newMsg}
+                    onChange={ev => setNewMsg(ev.target.value)} 
+                    type="text" 
+                    placeholder="  Send Message"/>
                     <button className="sendButton" type="submit">
                     <img src={send_button_icon} alt="send button icon"/>
                     </button>

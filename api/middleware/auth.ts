@@ -42,3 +42,26 @@ export async function verifyUser(data: { username: string; password: string }) {
   }
 }
 
+
+export async function verifyToken(cookies: string | undefined, jwt: any) {
+  if (!cookies) {
+    throw new Error('Missing cookies');
+  }
+
+  const authToken = cookies.split('; ')
+    .find(row => row.startsWith('auth='))?.split('=')[1];
+
+  if (!authToken) {
+    throw new Error('No auth token found');
+  }
+
+  try {
+    const activeUser = await jwt.verify(authToken);
+    if (!activeUser) {
+      throw new Error('Invalid user');
+    }
+    return activeUser;
+  } catch (err) {
+    throw new Error('Invalid or expired token');
+  }
+}

@@ -1,6 +1,6 @@
 import '../styles/userlist.css'
 import { useState, useEffect } from 'react';
-export function UserList({user, sendUserData}) {
+export function UserList({user, sendUserData, chatListClicked}) {
     const [bgColor, setBgColor] = useState("");
     const currSessionUser= {
         username: user.username ,
