@@ -26,6 +26,7 @@ html, body {
     overflow: auto;
     border-right: 1px solid #202225;
     z-index: 2;
+    position: relative;
 }
 .user-list-container {
     padding: 10px;
@@ -33,14 +34,17 @@ html, body {
     overflow-y: auto;
 }
 .user-profile {
+    position: absolute;
     display: flex;
     flex-grow: 1;
     height: 6.5vh; 
     justify-content: center; 
-    padding: 0;
+    /* padding: 0; */
+    padding-left: 12px;
     margin: 0;
     bottom: 0;
-    z-index: 3;
+    width: 94.4%;
+    z-index: 999;
 }
 .chat-wrapper {
     position: relative;
@@ -110,7 +114,7 @@ html, body {
 .search-box {
     position: relative;
     top: 0;
-    width: 95%;
+    width: 96.5%;
     height: 3vh;
     display: flex;
     padding: 10px;

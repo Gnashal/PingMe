@@ -26,7 +26,7 @@ export default function Dashboard() {
     const { id, username } = useContext(UserContext);
     useEffect(() => {
         async function verifyToken() {
-            const usrId = sessionStorage.getItem('id')
+            const usrId = id
                 if (!usrId) {
                     setTokenResponse("No Credentials");
                     console.error("No Id found in Session");
